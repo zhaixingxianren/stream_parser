@@ -1,0 +1,17 @@
+###  this tools function ###
+
+usage:
+ [tools] [option] [files]
+
+ option:
+	 -l [m,n]		:    list ts-pkgs header info , from m to n. default list first 5 ts header info
+						 if n not set, will only print m pkgs info.
+						 if have video,print I/B/P frame type ,and a/v's time.
+	 -off hex       :    print 'hex' position or near-after positon's ts-pkg header info
+						 if have video,print I/B/P frame type ,and a/v's time.
+	 -pat           :    print pat ts-info
+	 -pmt           :    print pmt ts-info
+	 -media         :    print a/v info (codec,h/w)
+
+
+
