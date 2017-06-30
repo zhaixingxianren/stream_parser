@@ -60,7 +60,7 @@ void parse_option(int argc, char ** argv)
 	cout<<"file:"<<file_path<<endl;
 
 	//for debug
-	for(int i ;i< argc;i++)
+	for(int i =0 ;i< argc;i++)
 		cout<<argv[i]<<endl;
 
 	return;

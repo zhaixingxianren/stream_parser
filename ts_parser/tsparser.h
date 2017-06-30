@@ -46,7 +46,10 @@ class TS_Parser{
 		~TS_Parser(); 
 
 		void sync_offset();
-		void PAT_pkg_offset(int fd);
+		void parsePAT();
+		void parsePMT();
+		//find the first offset of pid
+		uint64_t getOffsetOfPid(uint16_t pid);
 
 	private: //disabled;
 		TS_Parser();
