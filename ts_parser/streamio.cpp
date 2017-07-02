@@ -1,21 +1,34 @@
-#include <stdint.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <streamio.h>
 
-#define Log(level,...)
+#include <streamio.h>
+#include <stdio.h>
+
+#define Log(level,...) 
 
 namespace STREAMIO{
 	
 IOMethod::IOMethod(char *url):m_url(url)
 {
+	if(strncmp( url, "http://",7 ) == 0){
+		m_scheme = eHttp;
+		fprintf(stderr,"scheme: eHttp, m_fd:%d (%s)",m_fd,m_url);
+	}else if(strncmp( url, "file://",7 ) == 0){
+		m_scheme = eFile;
+		m_url = m_url + 6;
+		m_fd = open(m_url,O_RDONLY);
+		fprintf(stderr,"scheme: eFile, m_fd:%d (%s)",m_fd,m_url);
+	}else if(strncmp( url, "ftp://",6 ) == 0){
+		fprintf(stderr,"scheme: eHttp, m_fd:%d (%s)",m_fd,m_url);
+		m_scheme = eFtp;
+	}else{
+		m_scheme = eUnknown;
+		fprintf(stderr,"scheme: eUnknown,  (%s)",m_url);
+	}
+
 }
 
 IOMethod::IOMethod(char *url,SCHEME scheme):m_url(url),m_scheme(scheme)
 {
-	switch (scheme)
+	switch (m_scheme)
 	{
 		case eFile:
 		    m_fd = open(m_url,O_RDONLY);	
@@ -30,7 +43,7 @@ IOMethod::IOMethod(char *url,SCHEME scheme):m_url(url),m_scheme(scheme)
 
 IOMethod::	~IOMethod()
 {
-	switch (scheme)
+	switch (m_scheme)
 	{
 		case eFile:
 			if(m_fd) close(m_fd);
@@ -43,9 +56,9 @@ IOMethod::	~IOMethod()
 	Log(Debug,"~IOMethod");
 }
 
-size_t IOMethod::io_read(char *buf, size_t size)
+size_t IOMethod::io_read(uint8_t *buf, size_t size)
 {
-	switch (scheme)
+	switch (m_scheme)
 	{
 		case eFile:
 			if(m_fd) {
@@ -57,5 +70,7 @@ size_t IOMethod::io_read(char *buf, size_t size)
 		default:
 			break;
 	}
+	return -1;
 }
 
+}//name space

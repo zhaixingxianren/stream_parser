@@ -13,22 +13,33 @@ void parse_option(int argc, char ** argv);
 
 void printusage()
 {
-	cout<<"Usage: ts-parse-tools [Options]...  [TS-files]..."<<endl;
-	cout<<"[Options]: "<<endl;
-	cout<<"  -t  only parse ts header [default]"<<endl;
-	cout<<"  -p  parse ts & pes header "<<endl;
-	cout<<"  -s  parse specified stream pid "<<endl;
+fprintf(stderr,"usage: \n"
+" [tools] [option] [files]\n"
+" option:"
+"	 -l [m,n]		:    list ts-pkgs header info , from m to n. default list first 5 ts header info\n"
+"						 if n not set, will only print m pkgs info.\n"
+"						 if have video,print I/B/P frame type ,and a/v's time.\n"
+"	 -off hex       :    print 'hex' position or near-after positon's ts-pkg header info\n"
+"						 if have video,print I/B/P frame type ,and a/v's time.\n"
+"	 -pat           :    print pat ts-info\n"
+"	 -pmt           :    print pmt ts-info\n"
+"	 -media         :    print a/v info (codec,h/w)\n"
+);
 }
 
 
 int main(int argc, char ** argv)
 {
-	if(argc < 2 ||  argc > 4 )
+	if(argc < 2 ||  argc > 5 ){
 		printusage();
+		return 0;
+	}
 
 	parse_option(argc,argv);
 	TS_Parser ts_parser(file_path);
 	ts_parser.sync_offset();
+        ts_parser.parsePAT();
+	return 0;
 }
 
 void parse_option(int argc, char ** argv)

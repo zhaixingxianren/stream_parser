@@ -1,6 +1,7 @@
 #include <stdint.h>
-
+#include <streamio.h>
 /* temporarily only suppport TS-PKG-SIZE = 188 */
+const uint8_t TS_PKG_LENGTH = 188;
 
 typedef struct {
 } PAT_st;
@@ -11,8 +12,9 @@ typedef struct {
 /*
    TS struct
  */
+#pragma pack (1)
 typedef struct {
-	//const static uint8_t SYNCBYTE=0x47;
+	const uint8_t SYNCBYTE=0x47;
 	uint16_t transport_error_indicator:1;
 	uint16_t payload_unit_start_indicator:1;
 	uint16_t transport_priority:1;
@@ -33,6 +35,7 @@ typedef struct {
 	uint8_t adaptation_field_extension_length;
 	uint8_t _3_flags;
 } TS_Header_st;
+#pragma pack ()
 
 typedef struct {
 } PES_Header_st;
@@ -56,11 +59,11 @@ class TS_Parser{
 
 	private:
 		const static uint8_t SYNCBYTE=0x47;
-		char * ts_file{nullptr};
-		uint32_t ts_fd{0};
+		STREAMIO::IOMethod * m_iomethod;
 		uint64_t first_sync_offset{0}; //fist 0x47
 		uint32_t PAT_pkgnum{0};
-		TS_Header_st ts_header{0};
+		//TS_Header_st ts_header{0};
 		PAT_st pat_info;
 		PMT_st pmt_info;
+		uint8_t  local_buffs[TS_PKG_LENGTH * 200]; // 200 times length.
 };

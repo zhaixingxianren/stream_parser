@@ -1,12 +1,19 @@
 /*
    for read/write data from url
  */
+#include <stdint.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <string.h>
 
 namespace STREAMIO{
 	enum SCHEME {
 		eFile, //file://
 		eHttp, // http://
-		eFtp,  //rtp://
+		eFtp,  //ftp://
+		eUnknown,
 	};
 	
 	class IOMethod{
@@ -15,7 +22,7 @@ namespace STREAMIO{
 		IOMethod(char * url,SCHEME scheme);
 		~IOMethod();
 
-		size_t io_read(char *buf, size_t size);
+		size_t io_read(uint8_t *buf, size_t size);
 
 		private:
 		char * m_url;
