@@ -15,15 +15,15 @@ void printusage()
 {
 fprintf(stderr,"usage: \n"
 " [tools] [option] [files]\n"
-" option:"
-"	 -l [m,n]		:    list ts-pkgs header info , from m to n. default list first 5 ts header info\n"
-"						 if n not set, will only print m pkgs info.\n"
-"						 if have video,print I/B/P frame type ,and a/v's time.\n"
-"	 -off hex       :    print 'hex' position or near-after positon's ts-pkg header info\n"
-"						 if have video,print I/B/P frame type ,and a/v's time.\n"
-"	 -pat           :    print pat ts-info\n"
-"	 -pmt           :    print pmt ts-info\n"
-"	 -media         :    print a/v info (codec,h/w)\n"
+" option:\n"
+"\t-l [m,n]\tlist ts-pkgs header info , from m to n. default list first 5 ts header info\n"
+"\t\t\tif n not set, will only print m pkgs info.\n"
+"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
+"\t-off hex\tprint 'hex' position or near-after positon's ts-pkg header info\n"
+"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
+"\t-pat\tprint pat ts-info\n"
+"\t-pmt\tprint pmt ts-info\n"
+"\t-media\tprint a/v info (codec,h/w)\n"
 );
 }
 
@@ -38,7 +38,7 @@ int main(int argc, char ** argv)
 	parse_option(argc,argv);
 	TS_Parser ts_parser(file_path);
 	ts_parser.sync_offset();
-        ts_parser.parsePAT();
+    ts_parser.parsePAT();
 	return 0;
 }
 

@@ -31,12 +31,18 @@ void TS_Parser::parsePAT()
 //get the offset of buffer.  from header of buffer.
 uint64_t TS_Parser::getOffsetOfPid(uint16_t pid)
 {
-        TS_Header_st *header;
-
-	
 	for(uint16_t i = 0; i < 200; i ++){
-		header =(TS_Header_st *)(local_buffs+first_sync_offset + i * TS_PKG_LENGTH);
-		if(header->PID == pid){
+		TS_Header_st header = {0};
+
+		uint8_t * bytes8 = local_buffs + first_sync_offset + i * TS_PKG_LENGTH;
+
+		header.SYNCBYTE = bytes8[0];
+		header.transport_error_indicator    = bytes8[1] >> 7;
+		header.payload_unit_start_indicator = bytes8[1] >> 6 & 0x01 ;
+		header.PID                          = ( ( (uint16_t)bytes8[1] & 0x1f) << 8) + bytes8[2];
+		fprintf(stderr,"sync:%#x,err-indicator:%d,start-indicator:%d,pid:%#x\n",header.SYNCBYTE,header.transport_error_indicator,
+				header.payload_unit_start_indicator,header.PID);
+		if(header.PID == pid){
 			cout<<"found pid: i="<<i<<" !"<<endl;
 			return (first_sync_offset + i * TS_PKG_LENGTH);
 		}

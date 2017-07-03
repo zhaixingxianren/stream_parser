@@ -10,18 +10,22 @@ typedef struct {
 } PMT_st;
 
 /*
-   TS struct
+   TS struct, as bit-order difference, can not just copy stream[0x47,0x40,0x11,...] to this struct
  */
 #pragma pack (1)
 typedef struct {
-	const uint8_t SYNCBYTE=0x47;
+	uint8_t SYNCBYTE;
+
 	uint16_t transport_error_indicator:1;
 	uint16_t payload_unit_start_indicator:1;
 	uint16_t transport_priority:1;
-	uint16_t PID:13;
+        uint16_t PID:13;
+
+
 	uint8_t transport_scrambing_control:2;
-	uint8_t adaptation_field_control:2;
+   	uint8_t adaptation_field_control:2;
 	uint8_t continuity_counter:4;
+	
 	uint8_t adaptation_field_length;
 	uint8_t discontinuity_indicator:1;
 	uint8_t random_access_indicator:1;
