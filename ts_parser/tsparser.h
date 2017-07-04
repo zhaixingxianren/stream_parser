@@ -97,7 +97,8 @@ class TS_Parser{
 
 	private:
 		void sync_offset();
-		void get_header(TS_Header_st & header, uint32_t offset);
+		void set_ts_header(TS_Header_st & header, uint32_t offset);
+		void set_pat(PAT_st & pat, uint32_t offset);
 
 		const static uint8_t SYNCBYTE=0x47;
 		STREAMIO::IOMethod * m_iomethod;

@@ -45,15 +45,72 @@ void printf_ts_header(const TS_Header_st & st)
 void TS_Parser::parsePAT()
 {
    	TS_Header_st header = {0};
+	PAT_st  pat = {0};
     uint32_t offset=  getOffsetOfPid(0);
-	get_header(header,offset);
+
+	set_ts_header(header,offset);
+
+	if(header.payload_unit_start_indicator){
+		switch(header.adaptation_field_control){
+			case 0: //0x00 resolved
+				break;
+			case 1: //0x01, no adaptation, 184 payload
+				set_pat(pat,offset+4);
+				break;
+			case 2: //0x10, no payload, 183 adaptation 
+				break;
+			case 3: //0x11, paylaod after 0~182B adaptation
+				break;
+		}
+
+	}
+}
+
+void print_pat(PAT_st & pat)
+{
+	Log(Info,"\ttable_id = %#x, \n"
+			 "\tsection_syntax_indicator = %#x ,\n"
+			 "\tsection_length = %#x , \n"
+			 "\ttransport_stream_id = %#x, \n"
+			 "\tpat.version_number = %#x,\n"
+			 "\tpat.current_next_indicator=%#x, \n"
+			 ,
+	pat.table_id,
+	pat.section_syntax_indicator,
+	pat.section_length,
+	pat.transport_stream_id,
+	pat.version_number,
+	pat.current_next_indicator
+	);
+}
+/*
+ * header, ts struct
+ * offset, the ts header's offset
+ */
+void TS_Parser::set_pat(PAT_st & pat, uint32_t offset)
+{
+	uint8_t * bytes8 = local_buffs + offset;
+	Log(Info, "pointer feild:%#x",bytes8[0]);
+	bytes8 = bytes8[0] == 0 ? bytes8+1 : bytes8+bytes8[0] ;
+
+//	for(int i =0;i < 10; i++) 
+//		fprintf(stderr,"%x ",bytes8[i]);
+
+	pat.table_id = bytes8[0];
+	pat.section_syntax_indicator = bytes8[1] >> 7;
+	pat.section_length = (((uint16_t)bytes8[1] & 0x0f) << 8) + bytes8[2];
+	pat.transport_stream_id = ( (uint16_t)bytes8[3] << 8) + bytes8[4];
+	pat.version_number = (bytes8[5] & 0x3f) > 1;
+	pat.current_next_indicator = bytes8[5] & 0x1;
+
+	print_pat(pat);
 }
 
 /*
  * header, ts struct
  * offset, the ts header's offset
  */
-void TS_Parser::get_header(TS_Header_st & header, uint32_t offset)
+void TS_Parser::set_ts_header(TS_Header_st & header, uint32_t offset)
 {
 	uint8_t * bytes8 = local_buffs + offset;
 	header.SYNCBYTE = bytes8[0];
