@@ -14,8 +14,9 @@ LogLevel g_level = Info;
 
 TS_Parser::TS_Parser(char * file)
 {
-    m_iomethod = new STREAMIO::IOMethod(file);
     Log(Debug,"calling");
+    m_iomethod = new STREAMIO::IOMethod(file);
+	sync_offset();
 }
 
 TS_Parser::~TS_Parser()
@@ -44,7 +45,16 @@ void printf_ts_header(const TS_Header_st & st)
 void TS_Parser::parsePAT()
 {
    	TS_Header_st header = {0};
-   	uint32_t offset=  getOffsetOfPid(0);
+    uint32_t offset=  getOffsetOfPid(0);
+	get_header(header,offset);
+}
+
+/*
+ * header, ts struct
+ * offset, the ts header's offset
+ */
+void TS_Parser::get_header(TS_Header_st & header, uint32_t offset)
+{
 	uint8_t * bytes8 = local_buffs + offset;
 	header.SYNCBYTE = bytes8[0];
 	header.transport_error_indicator    = bytes8[1] >> 7;
@@ -55,6 +65,7 @@ void TS_Parser::parsePAT()
 	header.continuity_counter = (bytes8[3] & 0x0f)  ;
 
 	printf_ts_header(header);
+
 }
 
 //get the offset of buffer.  from header of buffer.

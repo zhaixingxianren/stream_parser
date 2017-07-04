@@ -2,8 +2,7 @@
 #include <stdint.h>
 #include <streamio.h>
 
-/*********************
-PID         value
+/********************* PID         value
 PAT         0x0000
 CAT         0x0001
 TSDT        0x0002
@@ -87,9 +86,9 @@ class TS_Parser{
 		//close fd,release resource
 		~TS_Parser(); 
 
-		void sync_offset();
 		void parsePAT();
 		void parsePMT();
+
 		//find the first offset of pid
 		uint64_t getOffsetOfPid(uint16_t pid);
 
@@ -97,6 +96,9 @@ class TS_Parser{
 		TS_Parser();
 
 	private:
+		void sync_offset();
+		void get_header(TS_Header_st & header, uint32_t offset);
+
 		const static uint8_t SYNCBYTE=0x47;
 		STREAMIO::IOMethod * m_iomethod;
 		uint32_t first_sync_offset{0}; //fist 0x47

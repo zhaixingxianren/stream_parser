@@ -8,6 +8,25 @@ static char opt[2]={0,0};
 static char * file_path = NULL;
 
 void parse_option(int argc, char ** argv);
+void printusage();
+
+
+
+int main(int argc, char ** argv)
+{
+	g_level = getLevel();
+	if(argc < 2 ||  argc > 5 ){
+		printusage();
+		return 0;
+	}
+
+	parse_option(argc,argv);
+
+	TS_Parser ts_parser(file_path);
+    ts_parser.parsePAT();
+
+	return 0;
+}
 
 void printusage()
 {
@@ -23,22 +42,6 @@ void printusage()
 	"\t-pmt\tprint pmt ts-info\n"
 	"\t-media\tprint a/v info (codec,h/w)\n"
 	);
-}
-
-
-int main(int argc, char ** argv)
-{
-	g_level = getLevel();
-	if(argc < 2 ||  argc > 5 ){
-		printusage();
-		return 0;
-	}
-
-	parse_option(argc,argv);
-	TS_Parser ts_parser(file_path);
-	ts_parser.sync_offset();
-    ts_parser.parsePAT();
-	return 0;
 }
 
 void parse_option(int argc, char ** argv)
