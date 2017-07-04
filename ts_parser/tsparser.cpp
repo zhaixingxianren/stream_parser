@@ -23,9 +23,37 @@ TS_Parser::~TS_Parser()
     delete m_iomethod;
 }
 
+void printf_ts_header(const TS_Header_st & st)
+{
+	fprintf(stderr,"####sync byte = %#x \n"
+			"\ttransport_error_indicator\t = %#x \n"
+			"\tpayload_unit_start_indicator\t = %#x \n"
+			"\tpid\t = %#x \n"
+			"\tscrambing _control\t = %#x \n"
+			"\tadaptation_field_contorl\t = %#x \n"
+			"\tcontinuity_counter\t = %#x \n",
+			st.SYNCBYTE ,
+			st.transport_error_indicator,
+			st.payload_unit_start_indicator ,
+			st.PID ,
+			st.transport_scrambing_control ,
+			st.adaptation_field_control ,st.continuity_counter
+	);
+}
 void TS_Parser::parsePAT()
 {
-	getOffsetOfPid(0);
+   	TS_Header_st header = {0};
+   	uint32_t offset=  getOffsetOfPid(0);
+	uint8_t * bytes8 = local_buffs + offset;
+	header.SYNCBYTE = bytes8[0];
+	header.transport_error_indicator    = bytes8[1] >> 7;
+	header.payload_unit_start_indicator = bytes8[1] >> 6 & 0x01 ;
+	header.PID    = ( ( (uint16_t)bytes8[1] & 0x1f) << 8) + bytes8[2];
+    header.transport_scrambing_control =  bytes8[3] >> 6;
+	header.adaptation_field_control = (bytes8[3] & 0x3f) >> 4 ;
+	header.continuity_counter = (bytes8[3] & 0x0f)  ;
+
+	printf_ts_header(header);
 }
 
 //get the offset of buffer.  from header of buffer.
