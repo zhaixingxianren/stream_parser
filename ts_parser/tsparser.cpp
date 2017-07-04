@@ -8,24 +8,25 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-using std::cout;
-using std::endl;
+#include <log.h>
+
+LogLevel g_level = Info;
 
 TS_Parser::TS_Parser(char * file)
 {
     m_iomethod = new STREAMIO::IOMethod(file);
-    cout<<__FUNCTION__<<"file:"<<file<<endl;	
+    Log(Debug,"calling");
 }
 
 TS_Parser::~TS_Parser()
 {
-    cout<<__FUNCTION__<<endl;
+    Log(Debug,"calling");
     delete m_iomethod;
 }
 
 void printf_ts_header(const TS_Header_st & st)
 {
-	fprintf(stderr,"####sync byte = %#x \n"
+	Log(Info,"####sync byte = %#x \n"
 			"\ttransport_error_indicator\t = %#x \n"
 			"\tpayload_unit_start_indicator\t = %#x \n"
 			"\tpid\t = %#x \n"
@@ -68,10 +69,10 @@ uint64_t TS_Parser::getOffsetOfPid(uint16_t pid)
 		header.transport_error_indicator    = bytes8[1] >> 7;
 		header.payload_unit_start_indicator = bytes8[1] >> 6 & 0x01 ;
 		header.PID                          = ( ( (uint16_t)bytes8[1] & 0x1f) << 8) + bytes8[2];
-		fprintf(stderr,"sync:%#x,err-indicator:%d,start-indicator:%d,pid:%#x\n",header.SYNCBYTE,header.transport_error_indicator,
+		Log(Debug,"sync:%#x,err-indicator:%d,start-indicator:%d,pid:%#x\n",header.SYNCBYTE,header.transport_error_indicator,
 				header.payload_unit_start_indicator,header.PID);
 		if(header.PID == pid){
-			cout<<"found pid: i="<<i<<" !"<<endl;
+			Log(Info,"found pid: i=%d !\n",i);
 			return (first_sync_offset + i * TS_PKG_LENGTH);
 		}
 	}
@@ -87,10 +88,9 @@ void TS_Parser::sync_offset()
 	do{
 	     if(local_buffs[i] == 0x47 &&  local_buffs[i+TS_PKG_LENGTH]== 0x47 &&  local_buffs[i+2*TS_PKG_LENGTH] == 0x47){
 		first_sync_offset = i;
-		cout<<"ts sync-byte found: i = "<<i<<" !"<<endl;
 		return;
 	      }
 	} while(i++ && i < TS_PKG_LENGTH);
 
-	cout<<"ts sync-byte not found !"<<endl;
+	Log(Error,"ts sync-byte not found !");
 }

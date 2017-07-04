@@ -1,10 +1,8 @@
 /* author: lijinbo@hisense.com */
 /* date  : 20170621            */
-#include<iostream>
-#include<tsparser.h>
 
-using std::cout;
-using std::endl;
+#include<tsparser.h>
+#include<log.h>
 
 static char opt[2]={0,0};
 static char * file_path = NULL;
@@ -13,23 +11,24 @@ void parse_option(int argc, char ** argv);
 
 void printusage()
 {
-fprintf(stderr,"usage: \n"
-" [tools] [option] [files]\n"
-" option:\n"
-"\t-l [m,n]\tlist ts-pkgs header info , from m to n. default list first 5 ts header info\n"
-"\t\t\tif n not set, will only print m pkgs info.\n"
-"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
-"\t-off hex\tprint 'hex' position or near-after positon's ts-pkg header info\n"
-"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
-"\t-pat\tprint pat ts-info\n"
-"\t-pmt\tprint pmt ts-info\n"
-"\t-media\tprint a/v info (codec,h/w)\n"
-);
+	Log(Info,"usage: \n"
+	" [tools] [option] [files]\n"
+	" option:\n"
+	"\t-l [m,n]\tlist ts-pkgs header info , from m to n. default list first 5 ts header info\n"
+	"\t\t\tif n not set, will only print m pkgs info.\n"
+	"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
+	"\t-off hex\tprint 'hex' position or near-after positon's ts-pkg header info\n"
+	"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
+	"\t-pat\tprint pat ts-info\n"
+	"\t-pmt\tprint pmt ts-info\n"
+	"\t-media\tprint a/v info (codec,h/w)\n"
+	);
 }
 
 
 int main(int argc, char ** argv)
 {
+	g_level = getLevel();
 	if(argc < 2 ||  argc > 5 ){
 		printusage();
 		return 0;
@@ -67,12 +66,9 @@ void parse_option(int argc, char ** argv)
 	
 	file_path = argv[argc-1];
 
-	cout<<"opt0:"<<opt[0]<<",opt1:"<<opt[1]<<endl;
-	cout<<"file:"<<file_path<<endl;
-
 	//for debug
 	for(int i =0 ;i< argc;i++)
-		cout<<argv[i]<<endl;
+		Log(Info,"%s",argv[i]);
 
 	return;
 err_out:
