@@ -24,6 +24,7 @@ int main(int argc, char ** argv)
 
 	TS_Parser ts_parser(file_path);
     ts_parser.parsePAT();
+    ts_parser.parsePMT();
 
 	return 0;
 }
