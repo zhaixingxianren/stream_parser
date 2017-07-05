@@ -13,6 +13,7 @@
 LogLevel g_level = Info;
 
 void print_pat(PAT_st & pat);
+void print_pmt(PMT_st & pmt);
 void printf_ts_header(const TS_Header_st & st);
 
 
@@ -104,7 +105,7 @@ void TS_Parser::parsePMT()
 			case 0: //0x00 resolved
 				break;
 			case 1: //0x01, no adaptation, 184 payload
-				//set_pmt(pat_info,offset+4);
+				set_pmt(pmt_info,offset+4);
 				break;
 			case 2: //0x10, no payload, 183 adaptation 
 				break;
@@ -117,9 +118,65 @@ void TS_Parser::parsePMT()
 
 void TS_Parser::set_pmt(PMT_st & pmt, uint32_t offset)
 {
-	uint8_t * bytes8 = local_buffs + offset;
-	Log(Info, "pointer feild:%#x",bytes8[0]);
-	bytes8 = bytes8[0] == 0 ? bytes8+1 : bytes8+bytes8[0] ;
+	uint8_t * byte = local_buffs + offset;
+	Log(Info, "pointer feild:%#x",byte[0]);
+	byte = byte[0] == 0 ? byte+1 : byte+byte[0] ; //TODO:: ponter feild?
+
+	pmt.table_id                            = byte[0];  
+	pmt.section_syntax_indicator            = byte[1] >> 7;  
+	pmt.zero                                = byte[1] >> 6 & 0x01;   
+	//pmt->reserved_1                          = byte[1] >> 4 & 0x03;  
+	pmt.section_length                      = (byte[1] & 0x0F) << 8 | byte[2];      
+	pmt.program_number                      = byte[3] << 8 | byte[4];  
+	//pmt->reserved_2                          = byte[5] >> 6;  
+	pmt.version_number                      = byte[5] >> 1 & 0x1F;  
+	pmt.current_next_indicator              = byte[5] & 0x1 ;  
+	pmt.section_number                      = byte[6];  
+	pmt.last_section_number                 = byte[7];  
+	//pmt->reserved_3                          = byte[8] >> 5;  
+	pmt.PCR_PID                             = ((byte[8] << 8) | byte[9]) & 0x1FFF;  
+  
+    //pmt->reserved_4                            = buffer[10] >> 4;  
+    pmt.program_info_length                 = (byte[10] & 0x0F) << 8 | byte[11];   
+    // Get CRC_32  
+	int len = 0;  
+    len = pmt.section_length + 3;      
+    pmt.CRC_32               = (byte[len-4] & 0x000000FF) << 24  
+		  | (byte[len-3] & 0x000000FF) << 16  
+		  | (byte[len-2] & 0x000000FF) << 8  
+		  | (byte[len-1] & 0x000000FF);   
+  
+	int pos = 12;  
+    // program info descriptor  
+    if ( pmt.program_info_length != 0 )  
+        pos += pmt.program_info_length;      
+    // Get stream type and PID      
+    for ( ; pos <= (pmt.section_length + 2 ) -  4; )  
+    {  
+		  TS_PMT_Stream pmt_stream;  
+		  pmt_stream.stream_type =  byte[pos];  
+		  pmt.reserved_5  =   byte[pos+1] >> 5;  
+		  pmt_stream.elementary_PID =  ((byte[pos+1] << 8) | byte[pos+2]) & 0x1FFF;  
+		  pmt.reserved_6     =   byte[pos+3] >> 4;  
+		  pmt_stream.ES_info_length =   (byte[pos+3] & 0x0F) << 8 | byte[pos+4];  
+    
+		  pmt_stream.descriptor = 0x00;  
+		  if (pmt_stream.ES_info_length != 0)  
+		  {  
+		   pmt_stream.descriptor = byte[pos + 5];  
+     
+		   for( int len = 2; len <= pmt_stream.ES_info_length; len ++ )  
+		   {  
+			pmt_stream.descriptor = pmt_stream.descriptor<< 8 | byte[pos + 4 + len];  
+		   }  
+		   pos += pmt_stream.ES_info_length;  
+		  }  
+		  pos += 5;  
+		  pmt.PMT_Stream.push_back( pmt_stream );  
+    }  
+
+
+	 print_pmt( pmt);
 }
 /*
  * header, ts struct
@@ -218,6 +275,41 @@ void print_pat(PAT_st & pat)
 		Log(Info,"\tprogram_id:%#x , program map pid:%#x \n"
 				,it->program_number
 				,it->program_map_PID);
+	}
+
+}
+
+void print_pmt(PMT_st & pmt)
+{
+	Log(Info,"\ttable_id = %#x, \n"
+			 "\tsection_syntax_indicator = %#x ,\n"
+			 "\tsection_length = %#x , \n"
+			 "\tprogram_number = %#x, \n"
+			 "\tversion_number = %#x,\n"
+			 "\tcurrent_next_indicator=%#x, \n"
+			 "\tsection_number = %#x , \n"
+			 "\tlast_section_number = %#x , \n"
+			 "\tPCR PID = %#x , \n"
+			 ,
+	pmt.table_id,
+	pmt.section_syntax_indicator,
+	pmt.section_length,
+	pmt.program_number,
+	pmt.version_number,
+	pmt.current_next_indicator,
+	pmt.section_number,
+	pmt.last_section_number,
+	pmt.PCR_PID
+	);
+	
+	std::vector<TS_PMT_Stream>::iterator it = pmt.PMT_Stream.begin();
+	for(;it != pmt.PMT_Stream.end(); it++){
+		Log(Info,"\tstream_type:%#x ,\n elementary_PID:%#x, \n es_info_length:%#x,\n descriptor:%#x\n"
+				,it->stream_type
+				,it->elementary_PID
+				,it->ES_info_length
+				,it->descriptor
+				);
 	}
 
 }
