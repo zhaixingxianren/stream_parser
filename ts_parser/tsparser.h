@@ -120,6 +120,8 @@ class TS_Parser{
 
 		void parsePAT();
 		void parsePMT();
+		void print_pmt();
+		void print_pat();
 
 		//find the first offset of pid
 		uint64_t getOffsetOfPid(uint16_t pid);

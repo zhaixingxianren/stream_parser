@@ -27,6 +27,11 @@ IOMethod::IOMethod(char *url):m_url(url)
 		Log(Info,"scheme: unknown (%s)\n",m_url);
 	}
 
+	if(m_fd == -1) {
+		Log(Error,"open file error");
+		exit(1);
+	}
+
 }
 
 IOMethod::IOMethod(char *url,SCHEME scheme):m_url(url),m_scheme(scheme)

@@ -12,8 +12,6 @@
 
 LogLevel g_level = Info;
 
-void print_pat(PAT_st & pat);
-void print_pmt(PMT_st & pmt);
 void printf_ts_header(const TS_Header_st & st);
 
 
@@ -90,7 +88,7 @@ void TS_Parser::set_pat(PAT_st & pat, uint32_t offset)
 			pat.program.push_back(pgm);
 		}
 	}
-	print_pat(pat);
+	//print_pat();
 }
 
 void TS_Parser::parsePMT()
@@ -176,7 +174,7 @@ void TS_Parser::set_pmt(PMT_st & pmt, uint32_t offset)
     }  
 
 
-	 print_pmt( pmt);
+	 //print_pmt();
 }
 /*
  * header, ts struct
@@ -193,7 +191,7 @@ void TS_Parser::set_ts_header(TS_Header_st & header, uint32_t offset)
 	header.adaptation_field_control = (bytes8[3] & 0x3f) >> 4 ;
 	header.continuity_counter = (bytes8[3] & 0x0f)  ;
 
-	printf_ts_header(header);
+	//printf_ts_header(header);
 
 }
 
@@ -253,7 +251,7 @@ void printf_ts_header(const TS_Header_st & st)
 	);
 }
 
-void print_pat(PAT_st & pat)
+void TS_Parser::print_pat()
 {
 	Log(Info,"\ttable_id = %#x, \n"
 			 "\tsection_syntax_indicator = %#x ,\n"
@@ -262,16 +260,16 @@ void print_pat(PAT_st & pat)
 			 "\tpat.version_number = %#x,\n"
 			 "\tpat.current_next_indicator=%#x, \n"
 			 ,
-	pat.table_id,
-	pat.section_syntax_indicator,
-	pat.section_length,
-	pat.transport_stream_id,
-	pat.version_number,
-	pat.current_next_indicator
+	pat_info.table_id,
+	pat_info.section_syntax_indicator,
+	pat_info.section_length,
+	pat_info.transport_stream_id,
+	pat_info.version_number,
+	pat_info.current_next_indicator
 	);
 	
-	std::vector<TS_PAT_Program>::iterator it = pat.program.begin();
-	for(;it != pat.program.end(); it++){
+	std::vector<TS_PAT_Program>::iterator it = pat_info.program.begin();
+	for(;it != pat_info.program.end(); it++){
 		Log(Info,"\tprogram_id:%#x , program map pid:%#x \n"
 				,it->program_number
 				,it->program_map_PID);
@@ -279,7 +277,7 @@ void print_pat(PAT_st & pat)
 
 }
 
-void print_pmt(PMT_st & pmt)
+void TS_Parser::print_pmt()
 {
 	Log(Info,"\ttable_id = %#x, \n"
 			 "\tsection_syntax_indicator = %#x ,\n"
@@ -291,19 +289,19 @@ void print_pmt(PMT_st & pmt)
 			 "\tlast_section_number = %#x , \n"
 			 "\tPCR PID = %#x , \n"
 			 ,
-	pmt.table_id,
-	pmt.section_syntax_indicator,
-	pmt.section_length,
-	pmt.program_number,
-	pmt.version_number,
-	pmt.current_next_indicator,
-	pmt.section_number,
-	pmt.last_section_number,
-	pmt.PCR_PID
+	pmt_info.table_id,
+	pmt_info.section_syntax_indicator,
+	pmt_info.section_length,
+	pmt_info.program_number,
+	pmt_info.version_number,
+	pmt_info.current_next_indicator,
+	pmt_info.section_number,
+	pmt_info.last_section_number,
+	pmt_info.PCR_PID
 	);
 	
-	std::vector<TS_PMT_Stream>::iterator it = pmt.PMT_Stream.begin();
-	for(;it != pmt.PMT_Stream.end(); it++){
+	std::vector<TS_PMT_Stream>::iterator it = pmt_info.PMT_Stream.begin();
+	for(;it != pmt_info.PMT_Stream.end(); it++){
 		Log(Info,"\tstream_type:%#x ,\n elementary_PID:%#x, \n es_info_length:%#x,\n descriptor:%#x\n"
 				,it->stream_type
 				,it->elementary_PID
