@@ -59,8 +59,8 @@ void TS_Parser::parsePAT()
 void TS_Parser::set_pat(PAT_st & pat, uint32_t offset)
 {
 	uint8_t * bytes8 = local_buffs + offset;
-	Log(Info, "pointer feild:%#x",bytes8[0]);
-	bytes8 = bytes8[0] == 0 ? bytes8+1 : bytes8+bytes8[0] ;
+	Log(Debug, "pointer feild:%#x",bytes8[0]);
+	bytes8 = bytes8[0] == 0 ? bytes8+1 : bytes8+bytes8[0] + 1 ; // TODO:
 
 //	for(int i =0;i < 10; i++) 
 //		fprintf(stderr,"%x ",bytes8[i]);
@@ -75,7 +75,7 @@ void TS_Parser::set_pat(PAT_st & pat, uint32_t offset)
 	//get program
 	int16_t section_length = pat.section_length > 5 ? pat.section_length -5 : 0 ;
 
-	Log(Info,"section length:%d",section_length);
+	Log(Debug,"section length:%d",section_length);
 	while((section_length -= 4) > 0){
 		TS_PAT_Program pgm{0};
 		pgm.program_number = ((uint16_t)bytes8[8] << 8) + bytes8[9];
@@ -84,7 +84,7 @@ void TS_Parser::set_pat(PAT_st & pat, uint32_t offset)
 		}else{
 			///TODO: program_number=0x01 is pmt ?
 			pgm.program_map_PID = ( ( (uint16_t)bytes8[10] & 0x1f) << 8) + bytes8[11];
-			fprintf(stderr,"left :%d\n",section_length);
+			Log(Debug,"left :%d\n",section_length);
 			pat.program.push_back(pgm);
 		}
 	}
@@ -117,8 +117,8 @@ void TS_Parser::parsePMT()
 void TS_Parser::set_pmt(PMT_st & pmt, uint32_t offset)
 {
 	uint8_t * byte = local_buffs + offset;
-	Log(Info, "pointer feild:%#x",byte[0]);
-	byte = byte[0] == 0 ? byte+1 : byte+byte[0] ; //TODO:: ponter feild?
+	Log(Debug, "pointer feild:%#x",byte[0]);
+	byte = byte[0] == 0 ? byte+1 : byte+byte[0] + 1 ; //TODO:: ponter feild?
 
 	pmt.table_id                            = byte[0];  
 	pmt.section_syntax_indicator            = byte[1] >> 7;  
@@ -160,13 +160,13 @@ void TS_Parser::set_pmt(PMT_st & pmt, uint32_t offset)
     
 		  pmt_stream.descriptor = 0x00;  
 		  if (pmt_stream.ES_info_length != 0)  
-		  {  
-		   pmt_stream.descriptor = byte[pos + 5];  
-     
-		   for( int len = 2; len <= pmt_stream.ES_info_length; len ++ )  
-		   {  
-			pmt_stream.descriptor = pmt_stream.descriptor<< 8 | byte[pos + 4 + len];  
-		   }  
+		  {
+			pmt_stream.descriptor = byte[pos + 5];  
+
+			for( int len = 2; len <= pmt_stream.ES_info_length; len ++ )  
+			{
+				pmt_stream.descriptor = pmt_stream.descriptor<< 8 | byte[pos + 4 + len];  
+			} 
 		   pos += pmt_stream.ES_info_length;  
 		  }  
 		  pos += 5;  
@@ -210,7 +210,7 @@ uint64_t TS_Parser::getOffsetOfPid(uint16_t pid)
 		Log(Debug,"sync:%#x,err-indicator:%d,start-indicator:%d,pid:%#x\n",header.SYNCBYTE,header.transport_error_indicator,
 				header.payload_unit_start_indicator,header.PID);
 		if(header.PID == pid){
-			Log(Info,"found pid: i=%d !\n",i);
+			Log(Debug,"found pid: i=%d !\n",i);
 			return (first_sync_offset + i * TS_PKG_LENGTH);
 		}
 	}

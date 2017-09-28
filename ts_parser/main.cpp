@@ -5,10 +5,10 @@
 #include<log.h>
 
 enum OptType{
-	ePKGNumInfo,
-	eOffsetInfo,
-	ePSIInfo,
-	eMediaInfo
+	ePKGNumInfo, //print pkgnum's info
+	eOffsetInfo, //print offset's pkg info
+	ePSIInfo,    //print psi info
+	eMediaInfo  //print media-info
 };
 
 struct option{
@@ -64,11 +64,11 @@ void printusage()
 	"\t-l [m,n]\tlist ts-pkgs header info , from m to n. default list first 5 ts header info\n"
 	"\t\t\tif n not set, will only print m pkgs info.\n"
 	"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
-	"\t-off hex\tprint 'hex' position or near-after positon's ts-pkg header info\n"
+	"\t-p hex\tprint 'hex' position or near-after positon's ts-pkg header info\n"
 	"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
-	"\t-pat\tprint pat ts-info\n"
-	"\t-pmt\tprint pmt ts-info\n"
-	"\t-media\tprint a/v info (codec,h/w)\n"
+	"\t-i\tprint pat/pmt ts-info\n"
+	"\t-m\tprint a/v info (codec,h/w)\n"
+	"\n\nexport PARSER_LEVEL=Debug/Info/Error\n"
 	);
 }
 
@@ -82,7 +82,7 @@ void parse_option(int argc, char ** argv)
 
 	while( (opt = getopt(argc,argv,"l:p:im" )) != -1 ) {
 		switch (opt){
-			case 'l':
+			case 'l': //list pkg-num's info
 				opts.type = ePKGNumInfo;  
 				opts.pkg_num = atoi(optarg) ;
 				Log(Debug,"ePKGNumInfo option,%d",opts.pkg_num);
