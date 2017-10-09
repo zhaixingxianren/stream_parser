@@ -1,0 +1,5 @@
+#test url:
+http://s3-eu-west-1.amazonaws.com/wuakiprodstpeter/e/f/e/efe03f174b7fa263b7910ff6487138d4-mc-0-109-0-0_UHD_D2BB/stream.mpd
+
+#google test url
+http://dash-mse-test.appspot.com/dash-player.html?url=http://yt-dash-mse-test.commondatastorage.googleapis.com/media/car-20120827-manifest.mpd
