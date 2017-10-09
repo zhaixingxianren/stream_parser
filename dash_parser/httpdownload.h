@@ -22,14 +22,13 @@ typedef enum{
     HTTP_NG,
 }HTTP_st;
 
-void init_curl(void);
-void deinit_curl(void);
 
 class EASY_HTTP
 {
 public:
     EASY_HTTP()
     {
+        curl_global_init( CURL_GLOBAL_ALL );
         curl = curl_easy_init();
         if(!curl){
             Log(1,"init error");
@@ -41,19 +40,22 @@ public:
         if(curl){
            curl_easy_cleanup(curl);
         }
+        curl_global_cleanup();
     }
 
-    HTTP_st downloader_url(const char * url);
-    HTTP_st downloader_file(const char * file);
-    HTTP_st downloader_useragent(const char *);
-    HTTP_st downloader_start();
+    HTTP_st url(const char * url);
+    HTTP_st local_file(const char * file);
+    HTTP_st useragent(const char *);
+    HTTP_st start_download();
 
 private:
     CURL *curl{NULL};
     CURLcode res;
     int fd{-1};
 
-
     EASY_HTTP(const EASY_HTTP&) = delete;
     EASY_HTTP & operator=(const EASY_HTTP&) = delete;
 };
+
+
+
