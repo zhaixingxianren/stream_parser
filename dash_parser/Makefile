@@ -13,16 +13,16 @@
 #
 EXECUTABLE := dash_parser# 可执行文件名
 LIBDIR:=             # 静态库目录
-LIBS :=               # 静态库文件名
-INCLUDES:=.           # 头文件目录
+LIBS :=  curl xml2             # 静态库文件名
+INCLUDES:=./  /usr/include/libxml2        # 头文件目录
 SRCDIR:=              # 除了当前目录外，其他的源代码文件目录
 #
 # # Now alter any implicit rules' variables if you like, e.g.:
 
 CC:=g++
-CFLAGS := -g -Wall -O3 -std=c++11 
+CFLAGS := -g -Wall -O3 -std=c++11
 CPPFLAGS := $(CFLAGS)
-CPPFLAGS += $(addprefix -I,$(INCLUDES)) -L/usr/lib/x86_64-linux-gnu 
+CPPFLAGS += $(addprefix -I,$(INCLUDES)) -L/usr/lib/x86_64-linux-gnu
 #CPPFLAGS += -MMD
 #
 # # The next bit checks to see whether rm is in your djgpp bin
@@ -65,7 +65,7 @@ $(MISSING_DEPS) :
 endif
 -include $(DEPS)
 $(EXECUTABLE) : $(OBJS)
-	$(CC) -o $(EXECUTABLE) $(OBJS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS)) -lcurl
+	$(CC) -o $(EXECUTABLE) $(OBJS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(LIBS))
 
 info:
 	@echo $(SRCS)
