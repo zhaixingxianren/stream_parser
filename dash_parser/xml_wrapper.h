@@ -1,17 +1,6 @@
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
-
-extern int g_level;
-#define Log(level,...)   \
-    do {                 \
-        if(level > g_level){         \
-            fprintf(stderr," [%s] ",__FUNCTION__); \
-            fprintf(stderr,__VA_ARGS__); \
-            fprintf(stderr,"\n");   \
-            fflush(stderr)  ;        \
-        }                           \
-    }while(0)
-
+#include<log.h>
 
 /* 
  * xml parse wrapper

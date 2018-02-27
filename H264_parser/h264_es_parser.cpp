@@ -37,11 +37,13 @@ static int find_start_code(const unsigned char *start, int size)
 int parse_h264_nul_type(const unsigned char* start, size_t size,size_t offset)
 {
     const unsigned char * p =start;
-    int nal_type = NAL_FF_IGNORE;
+    NAL_HEADER nal_header; 
+
     if (!start || size < 7){
         Log(1,"null pointer or error length");
         return -1;
     }
+
     int ret = 1;
     unsigned int left = size;
     while(ret >= 0 && left >  4){
@@ -51,53 +53,54 @@ int parse_h264_nul_type(const unsigned char* start, size_t size,size_t offset)
         p = p + ret + 4;
         left = size -( p-start);
 
-        nal_type = p[0] & 0x1F ; //111 0, 0000
-        switch (nal_type){
+        nal_header.nal_ref_idc   = (p[0] & 0x60) >> 5 ;
+        log(1,"-- na_ref_idc = %d\t",nal_header.nal_ref_idc);
+        nal_header.nal_unit_type = p[0] & 0x1F ; //111 0, 0000
+        switch (nal_header.nal_unit_type){
             case NALU_TYPE_SLICE    :
-                Log(1,"-- OFFSET:%#lx, slice type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, slice type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_DPA      :
-                Log(1,"-- OFFSET:%#lx, dpa type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, dpa type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_DPB      :
-                Log(1,"-- OFFSET:%#lx, dpb type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, dpb type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_DPC      :
-                Log(1,"-- OFFSET:%#lx, dpc type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, dpc type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_IDR      :
-                Log(1,"-- OFFSET:%#lx, IDR type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, IDR type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_SEI      :
-                Log(1,"-- OFFSET:%#lx, SEI type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, SEI type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_SPS      :
-                Log(1,"-- OFFSET:%#lx, SPS type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, SPS type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_PPS      :
-                Log(1,"-- OFFSET:%#lx, PPS type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, PPS type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_AUD      :
-                Log(1,"-- OFFSET:%#lx, AUD type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, AUD type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_EOSEQ    :
-                Log(1,"EOSEQ type");
-                Log(1,"-- OFFSET:%#lx, EOSEQ type",p-start-4 + offset);
+                Log(1,"-- OFFSET:%#lx, EOSEQ type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_EOSTREAM :
-                Log(1,"-- OFFSET:%#lx, EOSSTREAM type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, EOSSTREAM type\n",p-start-4 + offset);
                 break;
             case NALU_TYPE_FILL     :
-                Log(1,"-- OFFSET:%#lx, FILL type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, FILL type\n",p-start-4 + offset);
                 break;
             case NAL_SPS_EXT        :
-                Log(1,"-- OFFSET:%#lx, SPS_EXT type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, SPS_EXT type\n",p-start-4 + offset);
                 break;
             case NAL_AUXILIARY_SLICE:
-                Log(1,"-- OFFSET:%#lx, AUXILIARY_SLICE type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, AUXILIARY_SLICE type\n",p-start-4 + offset);
                 break;
             case NAL_FF_IGNORE      :
-                Log(1,"-- OFFSET:%#lx, FF_IGNORE type",p-start-4 + offset);
+                log(1,"-- OFFSET:%#lx, FF_IGNORE type\n",p-start-4 + offset);
                 break;
             default:break;
         }
@@ -130,7 +133,9 @@ int main(int argc,char ** argv){
 
         parse_h264_nul_type((unsigned char *)buf, parse_size, read_times*(UNIT_SIZE-PADDING));
 
+#ifndef not_debug //for debug,only parse 4096 bytes
         return 0;
+#endif
         //copy last padding to head
         buf[0] = buf[parse_size-4];
         buf[1] = buf[parse_size-3];

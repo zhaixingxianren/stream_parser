@@ -22,6 +22,7 @@ namespace STREAMIO{
 		~IOMethod();
 
 		size_t io_read(uint8_t *buf, size_t size);
+        size_t io_seekto( size_t off,int whence=SEEK_SET);
 
 		private:
 		char * m_url;

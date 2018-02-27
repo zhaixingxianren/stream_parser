@@ -26,10 +26,20 @@ int main(int argc,char **argv)
     easyHttp.start_download();
 
     XMLWrapper* xmlparse = new XMLWrapper(LOCALFILE);
+
     xmlNodePtr node = xmlparse->findNodeByName(xmlparse->getRootElement(),(xmlChar*)"MPD");
     if(node == NULL) { Log(1,"not found MPD"); return -1;}
 
     xmlChar * duration = xmlparse->getAttrValFromNode(node,(xmlChar*)"mediaPresentationDuration");
-    if(node == NULL) { Log(1,"not found MPD"); return -1;}
+    if(duration == NULL) { Log(1,"not found MPD"); return -1;}
     else Log(1,"mpd duration:%s",duration);
+
+    xmlNodePtr pnode = xmlparse->findNodeByName(xmlparse->getRootElement(),(xmlChar*)"Period");
+    if(pnode == NULL) { Log(1,"not found MPD"); return -1;}
+
+    xmlChar * pduration = xmlparse->getAttrValFromNode(pnode,(xmlChar*)"mediaPresentationDuration");
+    if(pduration == NULL) { Log(1,"not found Period"); return -1;}
+    else Log(1,"mpd pduration:%s",pduration);
+
+
 }

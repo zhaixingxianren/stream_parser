@@ -14,6 +14,12 @@ extern int g_level;
 		}							\
 	}while(0)
 
+#define log(lv,...)   \
+	do {			 	 \
+		if(lv > g_level){		 \
+			fprintf(stderr,__VA_ARGS__); \
+		}							\
+	}while(0)
 
 typedef enum {
     NALU_TYPE_SLICE    =0x1,
@@ -32,3 +38,10 @@ typedef enum {
     NAL_AUXILIARY_SLICE=0xe,
     NAL_FF_IGNORE      = 0xff0f001,
 } NAL_TYPE;
+
+typedef struct {
+    unsigned char forbidden_zero_bit;
+    unsigned char nal_ref_idc;
+    unsigned char nal_unit_type;
+} NAL_HEADER;
+

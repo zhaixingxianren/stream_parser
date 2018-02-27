@@ -80,5 +80,22 @@ size_t IOMethod::io_read(uint8_t *buf, size_t size)
 	}
 	return -1;
 }
+size_t IOMethod::io_seekto( size_t off,int whence)
+{
+    switch (m_scheme)
+	{
+		case eFile:
+			if(m_fd) {
+                return lseek(m_fd, off, whence);
+			}
+			break;
+		case eHttp:
+		case eFtp:
+		default:
+			break;
+	}
+	return -1;
+
+}
 
 }//name space

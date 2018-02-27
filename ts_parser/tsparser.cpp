@@ -311,3 +311,26 @@ void TS_Parser::print_pmt()
 	}
 
 }
+void TS_Parser::filter_pid(unsigned int Pid)
+{
+    if(m_iomethod->io_seekto(first_sync_offset) >=0 )
+        Log(Debug,"seeked to %d", first_sync_offset);
+
+    unsigned char bytes8[TS_PKG_LENGTH ];
+    uint32_t pid_tmp=0;
+    char file[256];
+    int fd_l = 0;
+    sprintf(file,"%s-%d.ts","./saved-filtered-",Pid);
+
+    fd_l = open(file,O_RDWR | O_CREAT,666);
+    Log(Debug,"saved file name:%s ,filefd:%d",file,fd_l);
+    while(1){
+        if(m_iomethod->io_read(bytes8,TS_PKG_LENGTH) < TS_PKG_LENGTH)
+            break;
+		pid_tmp = ( ( (uint16_t)bytes8[1] & 0x1f) << 8) + bytes8[2];
+        if(pid_tmp == Pid )
+            write(fd_l,bytes8,TS_PKG_LENGTH);
+    }
+
+    Log(Debug,"filter done ");
+}

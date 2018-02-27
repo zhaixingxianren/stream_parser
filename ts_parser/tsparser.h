@@ -147,6 +147,7 @@ class TS_Parser{
 		void parsePMT();
 		void print_pmt();
 		void print_pat();
+        void filter_pid(unsigned int pid);
 
 		//find the first offset of pid
 		uint64_t getOffsetOfPid(uint16_t pid);

@@ -4,17 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-extern int g_level;
-#define Log(level,...)   \
-    do {                 \
-        if(level > g_level){         \
-            fprintf(stderr," [%s] ",__FUNCTION__); \
-            fprintf(stderr,__VA_ARGS__); \
-            fprintf(stderr,"\n");   \
-            fflush(stderr)  ;        \
-        }                           \
-    }while(0)
+#include<log.h>
 
 typedef enum{
     HTTP_OK,

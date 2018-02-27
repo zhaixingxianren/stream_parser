@@ -8,13 +8,14 @@ enum OptType{
 	ePKGNumInfo, //print pkgnum's info
 	eOffsetInfo, //print offset's pkg info
 	ePSIInfo,    //print psi info
-	eMediaInfo  //print media-info
+	eMediaInfo,  //print media-info
+    eFilterPid   //filter PID
 };
 
 struct option{
 	OptType type;
 	int pkg_num;
-	int offset;
+	int data;  //store offset or pid
 };
 
 static struct option opts;
@@ -37,7 +38,7 @@ int main(int argc, char ** argv)
 
 	TS_Parser ts_parser(file_path);
     ts_parser.parsePAT();
-    ts_parser.parsePMT();
+    //ts_parser.parsePMT();
 
 	switch (opts.type)
 	{
@@ -50,6 +51,9 @@ int main(int argc, char ** argv)
 			ts_parser.print_pmt();
 			break;
 		case eMediaInfo: // -m mediainfo
+			break;
+		case eFilterPid: // -m mediainfo
+            ts_parser.filter_pid(opts.data);
 			break;
 	}
 
@@ -68,6 +72,7 @@ void printusage()
 	"\t\t\tif have video,print I/B/P frame type ,and a/v's time.\n"
 	"\t-i\tprint pat/pmt ts-info\n"
 	"\t-m\tprint a/v info (codec,h/w)\n"
+	"\t-s pid\tfilter pid data (codec,h/w)\n"
 	"\n\nexport PARSER_LEVEL=Debug/Info/Error\n"
 	);
 }
@@ -80,7 +85,7 @@ void parse_option(int argc, char ** argv)
 		return;
 	}
 
-	while( (opt = getopt(argc,argv,"l:p:im" )) != -1 ) {
+	while( (opt = getopt(argc,argv,"l:p:s:im" )) != -1 ) {
 		switch (opt){
 			case 'l': //list pkg-num's info
 				opts.type = ePKGNumInfo;  
@@ -89,8 +94,8 @@ void parse_option(int argc, char ** argv)
 				break;
 			case 'p': // 1 option
 				opts.type = eOffsetInfo; 
-				opts.offset = atoi(optarg);
-				Log(Debug,"eOffsetInf option,%d",opts.offset);
+				opts.data = atoi(optarg);
+				Log(Debug,"eOffsetInf option,%d",opts.data);
 				break;
 			case 'i': // 2 option
 				opts.type = ePSIInfo; // psi info
@@ -100,6 +105,11 @@ void parse_option(int argc, char ** argv)
 				opts.type = eMediaInfo; //media info
 				Log(Debug,"eMediaInfo option");
 				break;
+            case 's':
+				opts.type = eFilterPid; //media info
+				opts.data = atoi(optarg);
+				Log(Debug,"eFilterPid option,pid:%d",opts.data);
+                break;
 			default:
 				opts.type = eMediaInfo; //no option, -t as default
 				Log(Debug,"defalt option");
